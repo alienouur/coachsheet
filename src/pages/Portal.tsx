@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, Route, Routes, useNavigate, useParams } from 'react-router-dom'
-import { BarChart3, Check, ChevronLeft, ChevronRight, Dumbbell, History, Home, Play, Plus, Settings as SettingsIcon, Trash2 } from 'lucide-react'
+import { BarChart3, Check, CheckCheck, ChevronLeft, ChevronRight, Dumbbell, History, Home, Minus, Play, Plus, Settings as SettingsIcon, Trash2 } from 'lucide-react'
 import { fetchPortal, portalDeleteSession, portalSaveSession, portalUpdateSettings } from '../lib/db'
 import type { Portal as PortalData, WorkoutSession, WorkoutSet } from '../lib/types'
 import { exerciseHistory, exerciseNames, sessionDoneSets, sessionVolume, summary, weeklySeries } from '../lib/stats'
@@ -119,25 +119,39 @@ function PDay({ token, data, active, setActive, reload, say }: Ctx) {
 
   if (!day) return <div className="p-6"><Empty title="Day not found" /></div>
 
-  const start = () => { const entries: Record<string, Entry[]> = {}; day.exercises.forEach(e => entries[e.id] = Array.from({ length: e.sets }, () => ({ w: '', r: '', x: '', done: false }))); setActive({ dayId: day.id, startedAt: new Date().toISOString(), entries }) }
+  const seed = (ex: Exercise, i: number): Entry => {
+    const prev = lastEntries(data.sessions, ex.id, ex.name); const p = prev[i] ?? prev[prev.length - 1]
+    const firstReps = (ex.reps.split(/[-–]/)[0] || '').trim()
+    return { w: p?.weight != null ? String(p.weight) : '', r: p?.reps != null ? String(p.reps) : (isNumericReps(ex.reps) ? firstReps : ''), x: p?.extra || '', done: false }
+  }
+  const start = () => { const entries: Record<string, Entry[]> = {}; day.exercises.forEach(e => entries[e.id] = Array.from({ length: e.sets }, (_, i) => seed(e, i))); setActive({ dayId: day.id, startedAt: new Date().toISOString(), entries }) }
   const setEntry = (exId: string, i: number, patch: Partial<Entry>) => { if (!active) return; const list = [...(active.entries[exId] || [])]; list[i] = { ...list[i], ...patch }; setActive({ ...active, entries: { ...active.entries, [exId]: list } }) }
-  const addSet = (exId: string) => { if (!active) return; setActive({ ...active, entries: { ...active.entries, [exId]: [...(active.entries[exId] || []), { w: '', r: '', x: '', done: false }] } }) }
+  const addSet = (ex: Exercise) => { if (!active) return; const list = active.entries[ex.id] || []; setActive({ ...active, entries: { ...active.entries, [ex.id]: [...list, seed(ex, list.length)] } }) }
   const removeSet = (exId: string) => { if (!active) return; const list = [...(active.entries[exId] || [])]; if (list.length <= 1) return; list.pop(); setActive({ ...active, entries: { ...active.entries, [exId]: list } }) }
+  const filled = (ex: Exercise, e: Entry, i: number): Entry => { const d = seed(ex, i); return { ...e, w: e.w || d.w, r: e.r || d.r, x: e.x || d.x || (isNumericReps(ex.reps) ? '' : ex.reps) } }
+  const announcePR = (ex: Exercise, list: Entry[]) => {
+    const b = bestSet(data.sessions, ex.id, ex.name)
+    const top = list.filter(e => e.done).map(e => ({ w: Number(e.w), r: Number(e.r) })).filter(x => x.w > 0 && x.r > 0).sort((a, c) => c.w - a.w || c.r - a.r)[0]
+    if (top && (!b || top.w > b.w || (top.w === b.w && top.r > b.r))) say(`🏆 New record: ${top.w} ${unit} × ${top.r}`)
+  }
   const toggleDone = (ex: Exercise, i: number) => {
     if (!active) return
-    const e = active.entries[ex.id][i]; const done = !e.done
-    setEntry(ex.id, i, { done })
-    if (done) {
-      startRest()
-      const w = Number(e.w), r = Number(e.r); const b = bestSet(data.sessions, ex.id, ex.name)
-      if (w > 0 && r > 0 && (!b || w > b.w || (w === b.w && r > b.r))) say(`🏆 New record: ${w} ${unit} × ${r}`)
-    }
+    const list = [...(active.entries[ex.id] || [])]; const done = !list[i].done
+    list[i] = done ? { ...filled(ex, list[i], i), done } : { ...list[i], done }
+    setActive({ ...active, entries: { ...active.entries, [ex.id]: list } })
+    if (done) { startRest(); announcePR(ex, [list[i]]) }
+  }
+  const doneAll = (ex: Exercise) => {
+    if (!active) return
+    const list = (active.entries[ex.id] || []).map((e, i) => e.done ? e : { ...filled(ex, e, i), done: true })
+    setActive({ ...active, entries: { ...active.entries, [ex.id]: list } })
+    startRest(); announcePR(ex, list)
   }
   const doneCount = active ? Object.values(active.entries).flat().filter(e => e.done).length : 0
   const finish = async () => {
     if (!active) return
     const sets: WorkoutSet[] = []
-    for (const ex of day.exercises) (active.entries[ex.id] || []).forEach((e, i) => { if (e.done || e.w || e.r || e.x) sets.push({ exercise_id: ex.id, exercise_name: ex.name, set_index: i, weight: e.w ? Number(e.w) : null, reps: e.r ? Number(e.r) : null, extra: e.x || null, done: e.done }) })
+    for (const ex of day.exercises) (active.entries[ex.id] || []).forEach((e, i) => { if (e.done) sets.push({ exercise_id: ex.id, exercise_name: ex.name, set_index: i, weight: e.w ? Number(e.w) : null, reps: e.r ? Number(e.r) : null, extra: e.x || null, done: e.done }) })
     const min = Math.max(1, Math.round((Date.now() - new Date(active.startedAt).getTime()) / 60000))
     try {
       await portalSaveSession(token, { day_id: day.id, day_name: day.name, started_at: active.startedAt, duration_min: min, sets })
@@ -152,7 +166,7 @@ function PDay({ token, data, active, setActive, reload, say }: Ctx) {
     <div>
       <Header title={day.name} sub={`${day.exercises.length} exercises · ${day.exercises.reduce((a, e) => a + e.sets, 0)} sets`} back={`/c/${token}`} />
       <div className="px-4 space-y-3">
-        {!isActive && <button className="btn-primary w-full py-3 text-base" onClick={start}><Play size={18} /> Start workout</button>}
+        {!isActive && <><button className="btn-primary w-full py-3 text-base" onClick={start}><Play size={18} /> Start workout</button><p className="text-xs text-zinc-500 text-center">Sets are pre-filled with last time. Tap ✓ per set, or "Done as planned" for the whole exercise, and adjust only what changed.</p></>}
         {day.exercises.map((ex, idx) => {
           const prev = lastEntries(data.sessions, ex.id, ex.name)
           const entries = isActive ? active!.entries[ex.id] || [] : []
@@ -172,22 +186,21 @@ function PDay({ token, data, active, setActive, reload, say }: Ctx) {
                 </div>
               </div>
               {isActive && (
-                <div className="mt-3 space-y-1.5">
-                  <div className="grid grid-cols-[32px_1fr_1fr_44px] gap-2 text-[11px] text-zinc-500 px-1"><span>Set</span>{numeric ? <><span>Weight ({unit})</span><span>Reps</span></> : <><span className="col-span-2">Result (time / distance / reps)</span></>}<span></span></div>
+                <div className="mt-3 space-y-2">
+                  <div className="grid grid-cols-[1fr_1fr_56px] gap-2 text-[11px] text-zinc-500 px-1">{numeric ? <><span>Weight ({unit})</span><span>Reps</span></> : <span className="col-span-2">Result (time / distance / reps)</span>}<span className="text-center">Done</span></div>
                   {entries.map((e, i) => (
-                    <div key={i} className={`grid grid-cols-[32px_1fr_1fr_44px] gap-2 items-center ${e.done ? 'opacity-80' : ''}`}>
-                      <span className="text-sm text-zinc-400 text-center">{i + 1}</span>
+                    <div key={i} className={`grid grid-cols-[1fr_1fr_56px] gap-2 items-center ${e.done ? 'opacity-70' : ''}`}>
                       {numeric ? <>
-                        <input type="number" inputMode="decimal" step="0.5" placeholder={prev[i]?.weight != null ? String(prev[i].weight) : '—'} value={e.w} onChange={ev => setEntry(ex.id, i, { w: ev.target.value })} className="text-center" />
-                        <input type="number" inputMode="numeric" placeholder={prev[i]?.reps != null ? String(prev[i].reps) : ex.reps.split('-')[0]} value={e.r} onChange={ev => setEntry(ex.id, i, { r: ev.target.value })} className="text-center" />
-                      </> : <input className="col-span-2" placeholder={prev[i]?.extra || ex.reps} value={e.x} onChange={ev => setEntry(ex.id, i, { x: ev.target.value })} />}
-                      <button onClick={() => toggleDone(ex, i)} className={`h-10 rounded-lg flex items-center justify-center ${e.done ? 'bg-emerald-500 text-zinc-950' : 'bg-zinc-800 text-zinc-400 border border-zinc-700'}`}><Check size={18} /></button>
+                        <Stepper value={e.w} step={unit === 'lb' ? 5 : 2.5} placeholder={prev[i]?.weight != null ? String(prev[i].weight) : '0'} onChange={v => setEntry(ex.id, i, { w: v })} />
+                        <Stepper value={e.r} step={1} placeholder={prev[i]?.reps != null ? String(prev[i].reps) : ex.reps.split('-')[0]} onChange={v => setEntry(ex.id, i, { r: v })} />
+                      </> : <input className="col-span-2 h-12 w-full" placeholder={prev[i]?.extra || ex.reps} value={e.x} onChange={ev => setEntry(ex.id, i, { x: ev.target.value })} />}
+                      <button onClick={() => toggleDone(ex, i)} className={`h-12 rounded-lg flex flex-col items-center justify-center leading-none ${e.done ? 'bg-emerald-500 text-zinc-950' : 'bg-zinc-800 text-zinc-300 border border-zinc-700 active:bg-zinc-700'}`}>{e.done ? <Check size={22} /> : <><span className="text-[10px] text-zinc-500">set</span><span className="font-bold">{i + 1}</span></>}</button>
                     </div>
                   ))}
-                  <div className="flex gap-3 text-xs pt-1">
-                    <button className="text-brand-300" onClick={() => addSet(ex.id)}><Plus size={12} className="inline" /> Add set</button>
-                    <button className="text-zinc-400" onClick={() => removeSet(ex.id)}>Remove set</button>
-                    {prev.length > 0 && numeric && <button className="text-zinc-400 ml-auto" onClick={() => setActive({ ...active!, entries: { ...active!.entries, [ex.id]: entries.map((e, i) => prev[i] ? { ...e, w: e.w || String(prev[i].weight ?? ''), r: e.r || String(prev[i].reps ?? '') } : e) } })}>Copy last time</button>}
+                  <div className="flex items-center gap-2 pt-1">
+                    <button className={`flex-1 h-11 rounded-lg font-semibold inline-flex items-center justify-center gap-2 ${entries.every(e => e.done) ? 'bg-emerald-500/20 text-emerald-300' : 'bg-zinc-800 text-zinc-100 border border-zinc-700 active:bg-zinc-700'}`} onClick={() => doneAll(ex)} disabled={entries.every(e => e.done)}><CheckCheck size={18} /> {entries.every(e => e.done) ? 'Exercise done' : 'Done as planned'}</button>
+                    <button className="btn-ghost h-11 px-3" onClick={() => addSet(ex)} title="Add set"><Plus size={16} /></button>
+                    <button className="btn-ghost h-11 px-3" onClick={() => removeSet(ex.id)} title="Remove set" disabled={entries.length <= 1}><Minus size={16} /></button>
                   </div>
                 </div>
               )}
@@ -268,6 +281,18 @@ function PSettings({ token, data, reload, say }: Ctx) {
         <div className="card text-sm text-zinc-400"><div className="font-medium text-zinc-100 mb-1">Add to your home screen</div>iPhone: Safari → Share → "Add to Home Screen". Android: Chrome menu ⋮ → "Add to Home screen".</div>
         <div className="card text-sm text-zinc-400">Your coach{data.coach?.name ? ` (${data.coach.name})` : ''} sees everything you log here. Keep this link private — anyone with it can view your program.</div>
       </div>
+    </div>
+  )
+}
+
+function Stepper({ value, onChange, step, placeholder }: { value: string; onChange: (v: string) => void; step: number; placeholder?: string }) {
+  const base = value === '' ? Number(placeholder) || 0 : Number(value) || 0
+  const bump = (d: number) => onChange(String(Math.max(0, Math.round((base + d) * 100) / 100)))
+  return (
+    <div className="flex items-stretch h-12 rounded-lg border border-zinc-700 bg-zinc-900 overflow-hidden">
+      <button type="button" className="w-9 shrink-0 text-zinc-300 text-lg active:bg-zinc-700" onClick={() => bump(-step)} aria-label="decrease">−</button>
+      <input type="number" inputMode="decimal" step={step} value={value} placeholder={placeholder} onChange={e => onChange(e.target.value)} className="flex-1 min-w-0 w-full text-center font-semibold text-base !bg-transparent !border-0 !rounded-none !px-0 focus:!ring-0" />
+      <button type="button" className="w-9 shrink-0 text-zinc-300 text-lg active:bg-zinc-700" onClick={() => bump(step)} aria-label="increase">+</button>
     </div>
   )
 }

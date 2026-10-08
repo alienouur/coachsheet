@@ -34,7 +34,7 @@ export default function ClientPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-3">
         <Link to="/app" className="btn-ghost p-2"><ArrowLeft size={18} /></Link>
-        <div className="flex-1 min-w-48">
+        <div className="flex-1 min-w-0 basis-full sm:basis-auto">
           <h1 className="page-title">{client.name}</h1>
           <div className="text-sm text-zinc-400">{s.last ? `Last session ${fmtDate(s.last)} · ${daysAgo(s.last) === 0 ? 'today' : `${daysAgo(s.last)}d ago`}` : 'No sessions yet'} · {s.total} sessions total</div>
         </div>
@@ -93,11 +93,11 @@ function ProgramEditor({ program, onChange }: { program: ProgramFull; onChange: 
               {day.exercises.map((ex, i) => (
                 <div key={ex.id} className="grid grid-cols-[56px_1fr_auto] sm:grid-cols-[56px_1fr_70px_110px_1fr_auto] gap-2 items-center">
                   <button className="w-14 h-10 rounded-md overflow-hidden bg-zinc-800 flex items-center justify-center" onClick={() => setPicker(ex)} title="Change video">{ex.video_id ? <img src={ytThumb(ex.video_id)} alt="" className="w-full h-full object-cover" /> : <VideoOff size={16} className="text-amber-400" />}</button>
-                  <input defaultValue={ex.name} className={ex.optional ? 'italic' : ''} onBlur={e => { const v = e.target.value.trim(); if (v && v !== ex.name) { const m = ex.video_id ? null : matchVideo(v, overrides); updateExercise(ex.id, { name: v, ...(m ? { video_id: m.videoId } : {}) }).then(onChange) } }} />
+                  <input defaultValue={ex.name} className={`w-full ${ex.optional ? 'italic' : ''}`} onBlur={e => { const v = e.target.value.trim(); if (v && v !== ex.name) { const m = ex.video_id ? null : matchVideo(v, overrides); updateExercise(ex.id, { name: v, ...(m ? { video_id: m.videoId } : {}) }).then(onChange) } }} />
                   <div className="flex items-center sm:order-last"><button className="btn-ghost p-1.5" onClick={() => move(di, i, -1)} disabled={i === 0}><ArrowUp size={14} /></button><button className="btn-ghost p-1.5" onClick={() => move(di, i, 1)} disabled={i === day.exercises.length - 1}><ArrowDown size={14} /></button><button className="btn-ghost p-1.5 text-rose-300" onClick={() => deleteExercise(ex.id).then(onChange)}><Trash2 size={14} /></button></div>
-                  <input type="number" min={1} defaultValue={ex.sets} className="col-start-1 sm:col-auto" onBlur={e => Number(e.target.value) !== ex.sets && updateExercise(ex.id, { sets: Number(e.target.value) || 1 }).then(onChange)} />
-                  <input defaultValue={ex.reps} onBlur={e => e.target.value !== ex.reps && updateExercise(ex.id, { reps: e.target.value }).then(onChange)} />
-                  <div className="flex gap-2 items-center"><input className="flex-1" defaultValue={ex.notes} placeholder="Notes" onBlur={e => e.target.value !== ex.notes && updateExercise(ex.id, { notes: e.target.value }).then(onChange)} /><label className="text-xs text-zinc-400 flex items-center gap-1"><input type="checkbox" checked={ex.optional} onChange={e => updateExercise(ex.id, { optional: e.target.checked }).then(onChange)} />opt.</label></div>
+                  <input type="number" min={1} defaultValue={ex.sets} className="col-start-1 sm:col-auto w-full" onBlur={e => Number(e.target.value) !== ex.sets && updateExercise(ex.id, { sets: Number(e.target.value) || 1 }).then(onChange)} />
+                  <input defaultValue={ex.reps} className="w-full" onBlur={e => e.target.value !== ex.reps && updateExercise(ex.id, { reps: e.target.value }).then(onChange)} />
+                  <div className="flex gap-2 items-center col-span-3 sm:col-span-1 min-w-0"><input className="flex-1" defaultValue={ex.notes} placeholder="Notes" onBlur={e => e.target.value !== ex.notes && updateExercise(ex.id, { notes: e.target.value }).then(onChange)} /><label className="text-xs text-zinc-400 flex items-center gap-1"><input type="checkbox" checked={ex.optional} onChange={e => updateExercise(ex.id, { optional: e.target.checked }).then(onChange)} />opt.</label></div>
                 </div>
               ))}
               <button className="btn-ghost text-sm" onClick={async () => { const n = prompt('Exercise name'); if (!n) return; const m = matchVideo(n, overrides); await addExercise(day.id, day.exercises.length, { name: n, sets: 3, reps: '8-12', notes: '', optional: false, video_id: m?.videoId ?? null }); onChange() }}><Plus size={14} /> Add exercise</button>

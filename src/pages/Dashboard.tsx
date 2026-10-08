@@ -40,7 +40,10 @@ export default function Dashboard() {
               <div><b>Check in:</b> {quiet.map(c => <Link key={c.id} to={`/app/clients/${c.id}`} className="underline mr-2">{c.name}</Link>)} {quiet.length === 1 ? 'has' : 'have'} not logged a workout recently.</div>
             </div>
           )}
-          <div className="card p-0 overflow-hidden">
+          <div className="sm:hidden space-y-2">
+            {clients.map(c => <MobileRow key={c.id} c={c} onOpen={() => nav(`/app/clients/${c.id}`)} />)}
+          </div>
+          <div className="card p-0 overflow-hidden hidden sm:block">
             <table className="w-full text-sm">
               <thead className="bg-zinc-800/60 text-zinc-400 text-left"><tr><th className="px-4 py-3 font-medium">Client</th><th className="px-4 py-3 font-medium">Program</th><th className="px-4 py-3 font-medium">Last session</th><th className="px-4 py-3 font-medium">This week</th><th className="px-4 py-3 font-medium">30 days</th><th className="px-4 py-3 font-medium">Status</th></tr></thead>
               <tbody>
@@ -55,14 +58,37 @@ export default function Dashboard() {
   )
 }
 
+function statusOf(c: ClientSummary, d: number | null) {
+  return !c.hasProgram ? ['No program', 'bg-zinc-700 text-zinc-200'] : d === null ? ['Not started', 'bg-zinc-700 text-zinc-200'] : d <= 2 ? ['Active', 'bg-emerald-500/20 text-emerald-300'] : d <= 4 ? ['On track', 'bg-brand-500/20 text-brand-300'] : ['Inactive', 'bg-amber-500/20 text-amber-300']
+}
+const agoText = (d: number) => d === 0 ? 'today' : d === 1 ? 'yesterday' : `${d}d ago`
+
+function MobileRow({ c, onOpen }: { c: ClientSummary; onOpen: () => void }) {
+  const d = c.lastSession ? daysAgo(c.lastSession) : null
+  const status = statusOf(c, d)
+  return (
+    <button onClick={onOpen} className="card w-full text-left py-3 px-4 active:bg-zinc-800">
+      <div className="flex items-center gap-3">
+        <div className="flex-1 min-w-0"><div className="font-semibold truncate">{c.name}</div><div className="text-xs text-zinc-500 truncate">{c.programName ?? 'No program'}</div></div>
+        <span className={`badge ${status[1]}`}>{status[0]}</span>
+      </div>
+      <div className="mt-2 flex gap-4 text-xs text-zinc-400">
+        <span>Last: <b className="text-zinc-200">{c.lastSession ? agoText(d!) : '—'}</b></span>
+        <span>Week: <b className="text-zinc-200">{c.sessions7d}</b></span>
+        <span>30d: <b className="text-zinc-200">{c.sessions30d}</b></span>
+      </div>
+    </button>
+  )
+}
+
 function Row({ c, onOpen }: { c: ClientSummary; onOpen: () => void }) {
   const d = c.lastSession ? daysAgo(c.lastSession) : null
-  const status = !c.hasProgram ? ['No program', 'bg-zinc-700 text-zinc-200'] : d === null ? ['Not started', 'bg-zinc-700 text-zinc-200'] : d <= 2 ? ['Active', 'bg-emerald-500/20 text-emerald-300'] : d <= 4 ? ['On track', 'bg-brand-500/20 text-brand-300'] : ['Inactive', 'bg-amber-500/20 text-amber-300']
+  const status = statusOf(c, d)
   return (
     <tr className="border-t border-zinc-800 hover:bg-zinc-800/40 cursor-pointer" onClick={onOpen}>
       <td className="px-4 py-3"><div className="font-medium">{c.name}</div><div className="text-xs text-zinc-500">{c.email}</div></td>
       <td className="px-4 py-3 text-zinc-300">{c.programName ?? <span className="text-zinc-500">—</span>}</td>
-      <td className="px-4 py-3 text-zinc-300">{c.lastSession ? `${fmtDate(c.lastSession)} (${d === 0 ? 'today' : d === 1 ? 'yesterday' : `${d}d ago`})` : '—'}</td>
+      <td className="px-4 py-3 text-zinc-300">{c.lastSession ? `${fmtDate(c.lastSession)} (${agoText(d!)})` : '—'}</td>
       <td className="px-4 py-3">{c.sessions7d}</td>
       <td className="px-4 py-3">{c.sessions30d}</td>
       <td className="px-4 py-3"><span className={`badge ${status[1]}`}>{status[0]}</span></td>

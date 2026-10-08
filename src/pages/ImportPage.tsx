@@ -127,11 +127,11 @@ export default function ImportPage() {
                         {ex.videoId ? <img src={ytThumb(ex.videoId)} alt="" className="w-full h-full object-cover" /> : <VideoOff size={16} className="text-amber-400" />}
                         {ex.videoId && <span className={`absolute bottom-0 right-0 p-0.5 rounded-tl ${ex.confidence === 'fuzzy' ? 'bg-amber-500' : 'bg-emerald-500'}`}><Check size={10} className="text-zinc-950" /></span>}
                       </button>
-                      <input value={ex.name} onChange={ev => rematch(d, e, ev.target.value)} placeholder="Exercise name" className={ex.optional ? 'italic' : ''} />
+                      <input value={ex.name} onChange={ev => rematch(d, e, ev.target.value)} placeholder="Exercise name" className={`w-full ${ex.optional ? 'italic' : ''}`} />
                       <button className="btn-ghost p-2 text-rose-300 sm:hidden" onClick={() => removeExercise(d, e)}><Trash2 size={16} /></button>
-                      <input type="number" min={1} value={ex.sets} onChange={ev => update(d, e, { sets: Number(ev.target.value) })} className="col-start-1 sm:col-auto" />
-                      <input value={ex.reps} onChange={ev => update(d, e, { reps: ev.target.value })} placeholder="8-12" />
-                      <div className="flex gap-2 items-center col-span-1"><input className="flex-1" value={ex.notes} onChange={ev => update(d, e, { notes: ev.target.value })} placeholder="Tempo, cues…" /><label className="text-xs text-zinc-400 flex items-center gap-1 whitespace-nowrap"><input type="checkbox" checked={ex.optional} onChange={ev => update(d, e, { optional: ev.target.checked })} />opt.</label></div>
+                      <input type="number" min={1} value={ex.sets} onChange={ev => update(d, e, { sets: Number(ev.target.value) })} className="col-start-1 sm:col-auto w-full" />
+                      <input value={ex.reps} className="w-full" onChange={ev => update(d, e, { reps: ev.target.value })} placeholder="8-12" />
+                      <div className="flex gap-2 items-center col-span-3 sm:col-span-1 min-w-0"><input className="flex-1" value={ex.notes} onChange={ev => update(d, e, { notes: ev.target.value })} placeholder="Tempo, cues…" /><label className="text-xs text-zinc-400 flex items-center gap-1 whitespace-nowrap"><input type="checkbox" checked={ex.optional} onChange={ev => update(d, e, { optional: ev.target.checked })} />opt.</label></div>
                       <button className="btn-ghost p-2 text-rose-300 hidden sm:inline-flex" onClick={() => removeExercise(d, e)}><Trash2 size={16} /></button>
                     </div>
                   ))}

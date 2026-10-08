@@ -14,7 +14,7 @@
 
 html, body, #root { height: 100%; }
 body { @apply bg-zinc-950 text-zinc-100 antialiased; background-image: radial-gradient(1200px 600px at 80% -10%, rgb(249 115 22 / .10), transparent 60%); background-attachment: fixed; }
-input, select, textarea { @apply bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand-500/60 focus:border-brand-500; }
+input, select, textarea { @apply min-w-0 max-w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand-500/60 focus:border-brand-500; }
 input[type="checkbox"] { @apply w-4 h-4 rounded accent-brand-500 p-0; }
 ::selection { background: rgb(249 115 22 / .4); }
 
