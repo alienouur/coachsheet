@@ -17,7 +17,7 @@ export default function Login({ mode }: { mode: 'login' | 'signup' }) {
     try {
       if (!supabaseConfigured) throw new Error('Backend not configured yet (missing Supabase keys).')
       if (mode === 'signup') {
-        const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name } } })
+        const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name }, emailRedirectTo: `${location.origin}${import.meta.env.BASE_URL}app` } })
         if (error) throw error
         if (!data.session) { setInfo('Check your email to confirm your account, then sign in.'); return }
       } else {
