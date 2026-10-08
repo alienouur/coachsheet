@@ -30,7 +30,7 @@ export default function Login({ mode }: { mode: 'login' | 'signup' }) {
   return (
     <div className="min-h-full flex items-center justify-center p-4">
       <form onSubmit={submit} className="card w-full max-w-sm space-y-4">
-        <Link to="/" className="flex items-center gap-2 font-semibold text-xl justify-center"><Dumbbell className="text-sky-400" /> CoachSheet</Link>
+        <Link to="/" className="flex items-center gap-2 justify-center"><span className="bg-brand-500 text-zinc-950 rounded-md p-1"><Dumbbell size={18} /></span><span className="display text-3xl">CoachSheet</span></Link>
         <h1 className="text-lg font-semibold text-center">{mode === 'signup' ? 'Create your coach account' : 'Welcome back, coach'}</h1>
         {mode === 'signup' && <div><label className="label">Your name</label><input className="w-full" value={name} onChange={e => setName(e.target.value)} required /></div>}
         <div><label className="label">Email</label><input className="w-full" type="email" value={email} onChange={e => setEmail(e.target.value)} required /></div>
@@ -38,8 +38,8 @@ export default function Login({ mode }: { mode: 'login' | 'signup' }) {
         <ErrorBox error={error} />
         {info && <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/40 text-emerald-200 text-sm px-3 py-2">{info}</div>}
         <button className="btn-primary w-full" disabled={busy}>{busy ? 'Please wait…' : mode === 'signup' ? 'Create account' : 'Sign in'}</button>
-        <p className="text-sm text-center text-slate-400">
-          {mode === 'signup' ? <>Already have an account? <Link className="text-sky-400" to="/login">Sign in</Link></> : <>New here? <Link className="text-sky-400" to="/signup">Create a free account</Link></>}
+        <p className="text-sm text-center text-zinc-400">
+          {mode === 'signup' ? <>Already have an account? <Link className="text-brand-400" to="/login">Sign in</Link></> : <>New here? <Link className="text-brand-400" to="/signup">Create a free account</Link></>}
         </p>
       </form>
     </div>

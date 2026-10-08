@@ -82,21 +82,21 @@ export default function ImportPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Link to={`/app/clients/${id}`} className="btn-ghost p-2"><ArrowLeft size={18} /></Link>
-        <div><h1 className="text-2xl font-semibold">Upload program{clientName && <span className="text-slate-400 font-normal"> — {clientName}</span>}</h1></div>
+        <div><h1 className="page-title">Upload program{clientName && <span className="text-zinc-400 font-normal"> — {clientName}</span>}</h1></div>
       </div>
 
       {!program ? (
         <div className="grid md:grid-cols-3 gap-4">
-          <div className={`md:col-span-2 card border-dashed border-2 ${drag ? 'border-sky-400 bg-sky-500/5' : 'border-slate-700'} flex flex-col items-center justify-center text-center py-16 cursor-pointer`}
+          <div className={`md:col-span-2 card border-dashed border-2 ${drag ? 'border-brand-400 bg-brand-500/5' : 'border-zinc-700'} flex flex-col items-center justify-center text-center py-16 cursor-pointer`}
             onDragOver={e => { e.preventDefault(); setDrag(true) }} onDragLeave={() => setDrag(false)} onDrop={e => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f) onFile(f) }} onClick={() => fileRef.current?.click()}>
-            <FileSpreadsheet size={44} className="text-sky-400 mb-3" />
+            <FileSpreadsheet size={44} className="text-brand-400 mb-3" />
             <div className="text-lg font-medium">Drop the client's Excel file here</div>
-            <div className="text-slate-400 text-sm mt-1">.xlsx, .xls or .csv — one row per exercise, e.g. <code className="text-slate-300">Bench press | 3 x 8-12</code>, with "Day 1", "Day 2"… headers.</div>
+            <div className="text-zinc-400 text-sm mt-1">.xlsx, .xls or .csv — one row per exercise, e.g. <code className="text-zinc-300">Bench press | 3 x 8-12</code>, with "Day 1", "Day 2"… headers.</div>
             <button className="btn-primary mt-5"><Upload size={16} /> Choose file</button>
             <input ref={fileRef} type="file" accept=".xlsx,.xls,.xlsm,.csv" hidden onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f) }} />
           </div>
           <div className="space-y-3">
-            <div className="card text-sm text-slate-300"><div className="font-medium text-slate-100 mb-2">What happens next</div><ol className="list-decimal ml-4 space-y-1"><li>We read days, exercises, sets and reps.</li><li>Each exercise gets a form video automatically.</li><li>You review, fix anything, and save.</li><li>Your client gets a private link.</li></ol></div>
+            <div className="card text-sm text-zinc-300"><div className="font-medium text-zinc-100 mb-2">What happens next</div><ol className="list-decimal ml-4 space-y-1"><li>We read days, exercises, sets and reps.</li><li>Each exercise gets a form video automatically.</li><li>You review, fix anything, and save.</li><li>Your client gets a private link.</li></ol></div>
             <button className="btn-secondary w-full" onClick={downloadTemplate}><Download size={16} /> Download Excel template</button>
             <button className="btn-ghost w-full" onClick={startBlank} disabled={busy}>Or build the program by hand</button>
           </div>
@@ -106,7 +106,7 @@ export default function ImportPage() {
         <>
           <div className="card flex flex-wrap items-center gap-4">
             <div className="flex-1 min-w-60"><label className="label">Program name</label><input className="w-full" value={program.name} onChange={e => setProgram({ ...program, name: e.target.value })} /></div>
-            <div className="text-sm text-slate-300 flex gap-4"><span><b>{stats!.days}</b> days</span><span><b>{stats!.exercises}</b> exercises</span><span className={stats!.withVideo === stats!.exercises ? 'text-emerald-300' : 'text-amber-300'}><b>{stats!.withVideo}/{stats!.exercises}</b> videos matched</span></div>
+            <div className="text-sm text-zinc-300 flex gap-4"><span><b>{stats!.days}</b> days</span><span><b>{stats!.exercises}</b> exercises</span><span className={stats!.withVideo === stats!.exercises ? 'text-emerald-300' : 'text-amber-300'}><b>{stats!.withVideo}/{stats!.exercises}</b> videos matched</span></div>
             <button className="btn-ghost" onClick={() => setProgram(null)}>Choose another file</button>
           </div>
           {program.warnings.length > 0 && <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">{program.warnings.map((w, i) => <div key={i}>• {w}</div>)}</div>}
@@ -114,24 +114,24 @@ export default function ImportPage() {
           {program.days.map((day, d) => (
             <div key={d} className="card space-y-3">
               <div className="flex items-center gap-3">
-                <input className="font-semibold text-lg flex-1 bg-transparent border-transparent hover:border-slate-700 px-2" value={day.name} onChange={e => updateDay(d, { name: e.target.value })} />
-                <label className="text-sm text-slate-400 flex items-center gap-2"><input type="checkbox" checked={day.isRest} onChange={e => updateDay(d, { isRest: e.target.checked })} /> Rest day</label>
+                <input className="font-semibold text-lg flex-1 bg-transparent border-transparent hover:border-zinc-700 px-2" value={day.name} onChange={e => updateDay(d, { name: e.target.value })} />
+                <label className="text-sm text-zinc-400 flex items-center gap-2"><input type="checkbox" checked={day.isRest} onChange={e => updateDay(d, { isRest: e.target.checked })} /> Rest day</label>
                 <button className="btn-ghost p-2 text-rose-300" onClick={() => removeDay(d)} title="Remove day"><Trash2 size={16} /></button>
               </div>
               {!day.isRest && (
                 <div className="space-y-2">
-                  <div className="hidden sm:grid grid-cols-[56px_1fr_70px_110px_1fr_40px] gap-2 text-xs text-slate-500 px-1"><span>Video</span><span>Exercise</span><span>Sets</span><span>Reps</span><span>Notes</span><span></span></div>
+                  <div className="hidden sm:grid grid-cols-[56px_1fr_70px_110px_1fr_40px] gap-2 text-xs text-zinc-500 px-1"><span>Video</span><span>Exercise</span><span>Sets</span><span>Reps</span><span>Notes</span><span></span></div>
                   {day.exercises.map((ex, e) => (
                     <div key={e} className="grid grid-cols-[56px_1fr_40px] sm:grid-cols-[56px_1fr_70px_110px_1fr_40px] gap-2 items-center">
-                      <button className="relative w-14 h-10 rounded-md overflow-hidden bg-slate-800 flex items-center justify-center" onClick={() => setPicker({ d, e })} title={ex.videoId ? `Video matched (${ex.confidence}) — click to change` : 'No video — click to add'}>
+                      <button className="relative w-14 h-10 rounded-md overflow-hidden bg-zinc-800 flex items-center justify-center" onClick={() => setPicker({ d, e })} title={ex.videoId ? `Video matched (${ex.confidence}) — click to change` : 'No video — click to add'}>
                         {ex.videoId ? <img src={ytThumb(ex.videoId)} alt="" className="w-full h-full object-cover" /> : <VideoOff size={16} className="text-amber-400" />}
-                        {ex.videoId && <span className={`absolute bottom-0 right-0 p-0.5 rounded-tl ${ex.confidence === 'fuzzy' ? 'bg-amber-500' : 'bg-emerald-500'}`}><Check size={10} className="text-slate-950" /></span>}
+                        {ex.videoId && <span className={`absolute bottom-0 right-0 p-0.5 rounded-tl ${ex.confidence === 'fuzzy' ? 'bg-amber-500' : 'bg-emerald-500'}`}><Check size={10} className="text-zinc-950" /></span>}
                       </button>
                       <input value={ex.name} onChange={ev => rematch(d, e, ev.target.value)} placeholder="Exercise name" className={ex.optional ? 'italic' : ''} />
                       <button className="btn-ghost p-2 text-rose-300 sm:hidden" onClick={() => removeExercise(d, e)}><Trash2 size={16} /></button>
                       <input type="number" min={1} value={ex.sets} onChange={ev => update(d, e, { sets: Number(ev.target.value) })} className="col-start-1 sm:col-auto" />
                       <input value={ex.reps} onChange={ev => update(d, e, { reps: ev.target.value })} placeholder="8-12" />
-                      <div className="flex gap-2 items-center col-span-1"><input className="flex-1" value={ex.notes} onChange={ev => update(d, e, { notes: ev.target.value })} placeholder="Tempo, cues…" /><label className="text-xs text-slate-400 flex items-center gap-1 whitespace-nowrap"><input type="checkbox" checked={ex.optional} onChange={ev => update(d, e, { optional: ev.target.checked })} />opt.</label></div>
+                      <div className="flex gap-2 items-center col-span-1"><input className="flex-1" value={ex.notes} onChange={ev => update(d, e, { notes: ev.target.value })} placeholder="Tempo, cues…" /><label className="text-xs text-zinc-400 flex items-center gap-1 whitespace-nowrap"><input type="checkbox" checked={ex.optional} onChange={ev => update(d, e, { optional: ev.target.checked })} />opt.</label></div>
                       <button className="btn-ghost p-2 text-rose-300 hidden sm:inline-flex" onClick={() => removeExercise(d, e)}><Trash2 size={16} /></button>
                     </div>
                   ))}
@@ -142,8 +142,8 @@ export default function ImportPage() {
           ))}
           <button className="btn-secondary" onClick={addDay}><Plus size={16} /> Add day</button>
           <ErrorBox error={error} />
-          <div className="sticky bottom-0 py-3 bg-slate-950/90 backdrop-blur border-t border-slate-800 flex items-center justify-between">
-            <div className="text-sm text-slate-400"><Video size={14} className="inline mr-1" />Amber = best guess, click a thumbnail to check or change it.</div>
+          <div className="sticky bottom-0 py-3 bg-zinc-950/90 backdrop-blur border-t border-zinc-800 flex items-center justify-between">
+            <div className="text-sm text-zinc-400"><Video size={14} className="inline mr-1" />Amber = best guess, click a thumbnail to check or change it.</div>
             <button className="btn-primary px-6" onClick={save} disabled={busy || !program.days.length}>{busy ? 'Saving…' : 'Save program'}</button>
           </div>
         </>

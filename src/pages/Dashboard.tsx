@@ -21,7 +21,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Clients</h1>
+        <h1 className="page-title">Clients</h1>
         <button className="btn-primary" onClick={() => setAdding(true)}><UserPlus size={18} /> Add client</button>
       </div>
       {clients.length === 0 ? (
@@ -42,7 +42,7 @@ export default function Dashboard() {
           )}
           <div className="card p-0 overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-slate-800/60 text-slate-400 text-left"><tr><th className="px-4 py-3 font-medium">Client</th><th className="px-4 py-3 font-medium">Program</th><th className="px-4 py-3 font-medium">Last session</th><th className="px-4 py-3 font-medium">This week</th><th className="px-4 py-3 font-medium">30 days</th><th className="px-4 py-3 font-medium">Status</th></tr></thead>
+              <thead className="bg-zinc-800/60 text-zinc-400 text-left"><tr><th className="px-4 py-3 font-medium">Client</th><th className="px-4 py-3 font-medium">Program</th><th className="px-4 py-3 font-medium">Last session</th><th className="px-4 py-3 font-medium">This week</th><th className="px-4 py-3 font-medium">30 days</th><th className="px-4 py-3 font-medium">Status</th></tr></thead>
               <tbody>
                 {clients.map(c => <Row key={c.id} c={c} onOpen={() => nav(`/app/clients/${c.id}`)} />)}
               </tbody>
@@ -57,12 +57,12 @@ export default function Dashboard() {
 
 function Row({ c, onOpen }: { c: ClientSummary; onOpen: () => void }) {
   const d = c.lastSession ? daysAgo(c.lastSession) : null
-  const status = !c.hasProgram ? ['No program', 'bg-slate-700 text-slate-200'] : d === null ? ['Not started', 'bg-slate-700 text-slate-200'] : d <= 2 ? ['Active', 'bg-emerald-500/20 text-emerald-300'] : d <= 4 ? ['On track', 'bg-sky-500/20 text-sky-300'] : ['Inactive', 'bg-amber-500/20 text-amber-300']
+  const status = !c.hasProgram ? ['No program', 'bg-zinc-700 text-zinc-200'] : d === null ? ['Not started', 'bg-zinc-700 text-zinc-200'] : d <= 2 ? ['Active', 'bg-emerald-500/20 text-emerald-300'] : d <= 4 ? ['On track', 'bg-brand-500/20 text-brand-300'] : ['Inactive', 'bg-amber-500/20 text-amber-300']
   return (
-    <tr className="border-t border-slate-800 hover:bg-slate-800/40 cursor-pointer" onClick={onOpen}>
-      <td className="px-4 py-3"><div className="font-medium">{c.name}</div><div className="text-xs text-slate-500">{c.email}</div></td>
-      <td className="px-4 py-3 text-slate-300">{c.programName ?? <span className="text-slate-500">—</span>}</td>
-      <td className="px-4 py-3 text-slate-300">{c.lastSession ? `${fmtDate(c.lastSession)} (${d === 0 ? 'today' : d === 1 ? 'yesterday' : `${d}d ago`})` : '—'}</td>
+    <tr className="border-t border-zinc-800 hover:bg-zinc-800/40 cursor-pointer" onClick={onOpen}>
+      <td className="px-4 py-3"><div className="font-medium">{c.name}</div><div className="text-xs text-zinc-500">{c.email}</div></td>
+      <td className="px-4 py-3 text-zinc-300">{c.programName ?? <span className="text-zinc-500">—</span>}</td>
+      <td className="px-4 py-3 text-zinc-300">{c.lastSession ? `${fmtDate(c.lastSession)} (${d === 0 ? 'today' : d === 1 ? 'yesterday' : `${d}d ago`})` : '—'}</td>
       <td className="px-4 py-3">{c.sessions7d}</td>
       <td className="px-4 py-3">{c.sessions30d}</td>
       <td className="px-4 py-3"><span className={`badge ${status[1]}`}>{status[0]}</span></td>

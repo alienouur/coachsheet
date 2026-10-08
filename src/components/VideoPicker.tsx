@@ -8,7 +8,7 @@ export function VideoPicker({ open, onClose, exerciseName, currentId, onPick }: 
   const parsed = parseYouTubeId(input)
   return (
     <Modal open={open} onClose={onClose} title={`Video — ${exerciseName}`}>
-      {currentId ? <VideoEmbed videoId={currentId} title={exerciseName} /> : <div className="aspect-video rounded-xl bg-slate-800 flex items-center justify-center text-slate-400">No video yet</div>}
+      {currentId ? <VideoEmbed videoId={currentId} title={exerciseName} /> : <div className="aspect-video rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400">No video yet</div>}
       <div className="mt-4 space-y-3">
         <a className="btn-secondary w-full" href={ytSearch(exerciseName)} target="_blank" rel="noreferrer"><Search size={16} /> Search YouTube for "{exerciseName}" <ExternalLink size={14} /></a>
         <div>

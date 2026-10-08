@@ -2,20 +2,34 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bebas Neue", "Oswald", Impact, sans-serif;
+  --color-brand-200: #fed7aa;
+  --color-brand-300: #fdba74;
+  --color-brand-400: #fb923c;
+  --color-brand-500: #f97316;
+  --color-brand-600: #ea580c;
+  --color-brand-700: #c2410c;
+  --color-lime-400: #a3e635;
 }
 
 html, body, #root { height: 100%; }
-body { @apply bg-slate-950 text-slate-100 antialiased; }
-input, select, textarea { @apply bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/60 focus:border-sky-500; }
-input[type="checkbox"] { @apply w-4 h-4 rounded accent-sky-500 p-0; }
+body { @apply bg-zinc-950 text-zinc-100 antialiased; background-image: radial-gradient(1200px 600px at 80% -10%, rgb(249 115 22 / .10), transparent 60%); background-attachment: fixed; }
+input, select, textarea { @apply bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand-500/60 focus:border-brand-500; }
+input[type="checkbox"] { @apply w-4 h-4 rounded accent-brand-500 p-0; }
+::selection { background: rgb(249 115 22 / .4); }
 
 @layer components {
-  .btn, .btn-primary, .btn-secondary, .btn-danger, .btn-ghost { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed; }
-  .btn-primary { @apply bg-sky-500 text-slate-950 hover:bg-sky-400; }
-  .btn-secondary { @apply bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-700; }
+  .btn, .btn-primary, .btn-secondary, .btn-danger, .btn-ghost { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-primary { @apply bg-brand-500 text-zinc-950 hover:bg-brand-400 shadow-[0_0_0_1px_rgb(249_115_22/.5),0_8px_24px_-8px_rgb(249_115_22/.6)]; }
+  .btn-secondary { @apply bg-zinc-800 text-zinc-100 hover:bg-zinc-700 border border-zinc-700; }
   .btn-danger { @apply bg-rose-600 text-white hover:bg-rose-500; }
-  .btn-ghost { @apply text-slate-300 hover:bg-slate-800; }
-  .card { @apply bg-slate-900 border border-slate-800 rounded-2xl p-5; }
-  .label { @apply block text-sm text-slate-400 mb-1; }
-  .badge { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium; }
+  .btn-ghost { @apply text-zinc-300 hover:bg-zinc-800 font-medium; }
+  .card { @apply bg-zinc-900/90 border border-zinc-800 rounded-2xl p-5 shadow-[inset_0_1px_0_rgb(255_255_255/.03)]; }
+  .label { @apply block text-sm text-zinc-400 mb-1; }
+  .badge { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide; }
+  .display { font-family: var(--font-display); @apply uppercase tracking-wide leading-none; }
+  .page-title { font-family: var(--font-display); @apply uppercase tracking-wide text-3xl leading-none; }
+  .stat-value { font-family: var(--font-display); @apply text-4xl leading-none tracking-wide text-brand-400; }
+  .eyebrow { @apply text-[11px] font-bold uppercase tracking-[0.2em] text-brand-400; }
+  .stripes { background-image: repeating-linear-gradient(135deg, rgb(255 255 255 / .04) 0 2px, transparent 2px 14px); }
 }
