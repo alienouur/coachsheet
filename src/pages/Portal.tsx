@@ -209,10 +209,10 @@ function PDay({ token, data, active, setActive, reload, say }: Ctx) {
         })}
       </div>
       {isActive && (
-        <div className="fixed bottom-16 inset-x-0 px-4"><div className="max-w-2xl mx-auto card py-3 flex items-center gap-3 shadow-xl">
-          {rest > 0 ? <div className="flex items-center gap-2 text-sm"><span className="text-zinc-400">Rest</span><b className="text-xl tabular-nums">{String(Math.floor(rest / 60)).padStart(2, '0')}:{String(rest % 60).padStart(2, '0')}</b><button className="btn-ghost px-2 py-1 text-xs" onClick={() => setRest(r => r + 30)}>+30</button><button className="btn-ghost px-2 py-1 text-xs" onClick={() => { setRest(0); if (timer.current) clearInterval(timer.current) }}>Skip</button></div>
+        <div className="fixed bottom-16 inset-x-0 px-4"><div className="max-w-2xl mx-auto card py-3 px-3 sm:px-4 flex items-center gap-2 sm:gap-3 shadow-xl min-w-0">
+          {rest > 0 ? <div className="flex items-center gap-1.5 sm:gap-2 text-sm min-w-0"><span className="text-zinc-400 hidden sm:inline">Rest</span><b className="text-xl tabular-nums">{String(Math.floor(rest / 60)).padStart(2, '0')}:{String(rest % 60).padStart(2, '0')}</b><button className="btn-ghost px-2 py-1 text-xs" onClick={() => setRest(r => r + 30)}>+30</button><button className="btn-ghost px-2 py-1 text-xs" onClick={() => { setRest(0); if (timer.current) clearInterval(timer.current) }}>Skip</button></div>
             : <div className="text-sm text-zinc-300"><b>{doneCount}</b> sets done</div>}
-          <div className="ml-auto flex gap-2"><button className="btn-ghost text-rose-300 px-3" onClick={cancel}>Discard</button><button className="btn-primary" onClick={finish} disabled={doneCount === 0}>Finish</button></div>
+          <div className="ml-auto flex gap-2 shrink-0"><button className="btn-ghost text-rose-300 px-2 sm:px-3" onClick={cancel} title="Discard workout"><Trash2 size={16} /><span className="hidden sm:inline">Discard</span></button><button className="btn-primary" onClick={finish} disabled={doneCount === 0}>Finish</button></div>
         </div></div>
       )}
       {video && <Modal open onClose={() => setVideo(null)} title={video.name}><VideoEmbed videoId={video.video_id!} title={video.name} /><div className="mt-3 text-sm text-zinc-400 flex justify-between"><span>{video.sets} × {video.reps}</span><a className="text-brand-400" href={ytWatch(video.video_id!)} target="_blank" rel="noreferrer">Open on YouTube</a></div>{video.notes && <p className="mt-2 text-sm text-zinc-300">{video.notes}</p>}</Modal>}
